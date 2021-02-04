@@ -87,6 +87,57 @@ exports.addPoints=(request, response) =>{
     }
 };
 
+//Deduct Points
+exports.deductPoints = (request, response) =>{
+    const userName = request.body.user
+    if(userData.has(userName)){
+        let amount=request.body.points
+        if(amount<0){
+            response.status(400).json({code:"INSUFFICIENT POINTS"});
+        }
+        let user=userData.get(userName)
+        let totalAmount=0
+        user.payerInfo.forEach(function(value, key) {
+            totalAmount+=value
+        })
+        if (totalAmount<amount){
+            response.status(400).json({code:"INSUFFICIENT POINTS"});
+        }
+        else{
+            let map= new Map()
+            let transaction=user.tList[0]
+            while ((amount-transaction.points)>0){
+                if(map.has(transaction.payer)){
+                    map.set(transaction.payer,map.get(transaction.payer)+transaction.points)
+                }
+                else{
+                    map.set(transaction.payer, transaction.points)
+                }
+                amount-=transaction.points
+                user.tList.shift()
+                transaction=user.tList[0]
+            }
+            if(map.has(transaction.payer)){
+                map.set(transaction.payer,map.get(transaction.payer)+amount)
+            }
+            else{
+                map.set(transaction.payer, amount)
+            }
+            user.tList[0].points-=amount
+            console.log("tList",user.tList);
+            map.forEach(function(value, key) {
+                user.payerInfo.set(key,user.payerInfo.get(key)-value)
+                map.set(key,value*(-1))
+                
+            })
+            response.status(200).send(JSON.stringify([...map]))
+        }
+    }
+    else{
+    response.status(404).json({code:"USER NOT FOUND"});
+    }
+}
+
 //Points-Balance
 exports.pointBalance = (request, response) =>{
     const userName = request.params.user

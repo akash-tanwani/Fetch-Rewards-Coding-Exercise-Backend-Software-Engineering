@@ -1,6 +1,6 @@
 const { app, port } = require("./admin/serversetup");
 
-const {addPoints, pointBalance} = require("./routes/routes");
+const {addPoints, pointBalance,deductPoints} = require("./routes/routes");
 
 app.listen(port, () => {
   console.log("Server is running on port:" + port);
@@ -8,4 +8,5 @@ app.listen(port, () => {
 
 //Routes
 app.post("/addPoints", addPoints);
+app.post("/deductPoints", deductPoints);
 app.get("/pointBalance/:user", pointBalance);
