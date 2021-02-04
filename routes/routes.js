@@ -87,3 +87,16 @@ exports.addPoints=(request, response) =>{
     }
 };
 
+//Points-Balance
+exports.pointBalance = (request, response) =>{
+    const userName = request.params.user
+    if(userData.has(userName)){
+
+        let map=userData.get(userName).payerInfo
+        response.status(200).send(JSON.stringify([...map]))
+    }
+    else{
+    response.status(404).json({code:"USER NOT FOUND"});
+    }
+}
+
